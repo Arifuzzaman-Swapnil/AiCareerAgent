@@ -1,26 +1,545 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Career Counsellor</title>
-  <style>
-    textarea { width: 100%; height: 200px; }
-    .output { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Counsellor - Career Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0 20px 20px 0;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .history-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+
+        .history-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .history-content {
+            color: #666;
+            font-size: 0.85em;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-date {
+            color: #999;
+            font-size: 0.75em;
+            margin-top: 8px;
+        }
+
+        .no-history {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .career-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-container {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 12px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .form-textarea {
+            width: 100%;
+            height: 200px;
+            padding: 20px;
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .output {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .output h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .output-content {
+            color: #444;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-size: 1.05em;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e1e1;
+        }
+
+        .nav-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(-5px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-links a:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-radius: 0 0 20px 20px;
+                max-height: 200px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .career-container {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 1.8em;
+            }
+            
+            .logo {
+                font-size: 2.5em;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #5a67d8;
+        }
+    </style>
 </head>
 <body>
-  <h2>বাংলা ক্যারিয়ার কাউন্সেলর</h2>
-  <form method="POST">
-    <label>আপনার রেজুমে বা স্কিল টেক্সট দিন:</label><br>
-    <textarea name="resume" required></textarea><br><br>
-    <button type="submit">সাজেশন নিন</button>
-  </form>
-
-  {% if suggestion %}
-    <div class="output">
-      <h3>🎯 সাজেস্টেড ক্যারিয়ার:</h3>
-      <pre>{{ suggestion }}</pre>
+    <!-- Sidebar for History -->
+    <div class="sidebar">
+        <h3>📋 History</h3>
+        <div id="historyContainer">
+            <!-- History items will be populated here -->
+            <div class="no-history">
+                <p>No career suggestions yet.</p>
+                <p>Submit your first query to see history!</p>
+            </div>
+        </div>
     </div>
-  {% endif %}
-  <br><a href="/dashboard">← ড্যাশবোর্ডে ফিরে যান</a>
+
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="career-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1 class="main-title">বাংলা ক্যারিয়ার কাউন্সেলর</h1>
+                <p class="subtitle">আপনার স্বপ্নের ক্যারিয়ার খুঁজে পান</p>
+            </div>
+
+            <div class="form-container">
+                <form method="POST" id="careerForm">
+                    <div class="form-group">
+                        <label class="form-label" for="resume">
+                            আপনার রেজুমে বা স্কিল টেক্সট দিন:
+                        </label>
+                        <textarea 
+                            class="form-textarea" 
+                            name="resume" 
+                            id="resume" 
+                            required
+                            placeholder="এখানে আপনার শিক্ষাগত যোগ্যতা, অভিজ্ঞতা, স্কিল এবং আগ্রহের বিষয়গুলি লিখুন। যেমন: 'আমি কম্পিউটার সায়েন্সে গ্র্যাজুয়েট। পাইথন, জাভাস্ক্রিপ্ট, রিয়েক্ট জানি। ওয়েব ডেভেলপমেন্ট এবং AI এর প্রতি আগ্রহ রয়েছে।'"
+                        ></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        🚀 ক্যারিয়ার সাজেশন নিন
+                    </button>
+                </form>
+                
+                <div class="loading" id="loading">
+                    প্রক্রিয়াকরণ চলছে...
+                </div>
+            </div>
+
+            {% if suggestion %}
+            <div class="output">
+                <h3>🎯 সাজেস্টেড ক্যারিয়ার:</h3>
+                <div class="output-content">{{ suggestion }}</div>
+            </div>
+            {% endif %}
+
+            
+        </div>
+    </div>
+
+    <script>
+        // Load history on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+        });
+
+        // Form submission handling
+        document.getElementById('careerForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'প্রক্রিয়াকরণ চলছে...';
+            loading.style.display = 'block';
+        });
+
+        // Load history from localStorage (simulate Firebase data)
+        function loadHistory() {
+            const historyContainer = document.getElementById('historyContainer');
+            
+            // Simulate loading history data
+            // In real implementation, this would fetch from Firebase
+            const sampleHistory = [
+                {
+                    id: 1,
+                    title: "Software Developer সাজেশন",
+                    content: "আমি কম্পিউটার সায়েন্সে গ্র্যাজুয়েট। পাইথন, জাভাস্ক্রিপ্ট জানি...",
+                    suggestion: "১. ফুলস্ট্যাক ডেভেলপার ২. ডেটা সাইনটিস্ট ৩. সফটওয়্যার ইঞ্জিনিয়ার",
+                    date: "2024-01-15"
+                },
+                {
+                    id: 2,
+                    title: "Digital Marketing Expert",
+                    content: "আমি মার্কেটিং এ গ্র্যাজুয়েট। সোশ্যাল মিডিয়া এবং কন্টেন্ট তৈরিতে আগ্রহী...",
+                    suggestion: "১. ডিজিটাল মার্কেটিং স্পেশালিস্ট ২. কন্টেন্ট ক্রিয়েটর ৩. সোশ্যাল মিডিয়া ম্যানেজার",
+                    date: "2024-01-10"
+                }
+            ];
+
+            // Check if we have actual suggestion from current session
+            const currentSuggestion = `{% if suggestion %}{{ suggestion }}{% endif %}`;
+            
+            if (currentSuggestion.trim()) {
+                // Add current suggestion to history
+                const currentQuery = document.getElementById('resume').value || "Recent query";
+                sampleHistory.unshift({
+                    id: Date.now(),
+                    title: "সাম্প্রতিক ক্যারিয়ার সাজেশন",
+                    content: currentQuery.substring(0, 100) + "...",
+                    suggestion: currentSuggestion,
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
+
+            if (sampleHistory.length > 0) {
+                historyContainer.innerHTML = '';
+                sampleHistory.forEach(item => {
+                    const historyItem = createHistoryItem(item);
+                    historyContainer.appendChild(historyItem);
+                });
+            }
+        }
+
+        function createHistoryItem(item) {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.onclick = () => showHistoryDetail(item);
+            
+            div.innerHTML = `
+                <div class="history-title">${item.title}</div>
+                <div class="history-content">${item.content}</div>
+                <div class="history-date">${formatDate(item.date)}</div>
+            `;
+            
+            return div;
+        }
+
+        function showHistoryDetail(item) {
+            // Fill the textarea with the historical content
+            document.getElementById('resume').value = item.content;
+            
+            // Show the suggestion in output area
+            const existingOutput = document.querySelector('.output');
+            if (existingOutput) {
+                existingOutput.remove();
+            }
+            
+            const outputDiv = document.createElement('div');
+            outputDiv.className = 'output';
+            outputDiv.innerHTML = `
+                <h3>🎯 সাজেস্টেড ক্যারিয়ার:</h3>
+                <div class="output-content">${item.suggestion}</div>
+            `;
+            
+            document.querySelector('.form-container').insertAdjacentElement('afterend', outputDiv);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('bn-BD', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Auto-resize textarea
+        document.getElementById('resume').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 300) + 'px';
+        });
+
+        // Add smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
