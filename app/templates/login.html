@@ -1,61 +1,455 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Assistant - Login</title>
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <script>
-    // 👉 Replace with your actual Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCFzIzEA-TWZR2Cn5uP5V-QBm51EpyRA8A",
-      authDomain: "career-assistant-e706b.firebaseapp.com",
-      projectId: "career-assistant-e706b"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            margin-top: 15px;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+            text-align: left;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auth-toggle {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .auth-toggle p {
+            color: #666;
+            margin: 0;
+        }
+
+        .auth-toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .features {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .features h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .feature-list {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            text-align: center;
+            margin: 5px;
+            color: #666;
+        }
+
+        .feature-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .feature-text {
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Login to Career Assistant</h2>
+    <div class="login-container">
+        <div class="logo">💼</div>
+        <h1 id="formTitle">Career Assistant</h1>
+        
+        <form id="authForm">
+            <div class="input-group" id="nameGroup" style="display: none;">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName">
+            </div>
+            
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            
+            <div class="input-group" id="confirmPasswordGroup" style="display: none;">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword">
+            </div>
+            
+            <button type="submit" class="login-btn" id="authBtn">
+                Login to Dashboard
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            Logging in...
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="auth-toggle">
+            <p>Don't have an account? <a href="#" id="toggleAuth">Create Account</a></p>
+        </div>
+        
+        <div class="features">
+            <h3>আপনার ক্যারিয়ার সহায়ক</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">Resume Analysis</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">Career Guidance</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💡</div>
+                    <div class="feature-text">Interview Practice</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <input type="email" id="email" placeholder="Email"><br>
-  <input type="password" id="password" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFzIzEA-TWZR2Cn5uP5V-QBm51EpyRA8A",
+            authDomain: "career-assistant-e706b.firebaseapp.com",
+            projectId: "career-assistant-e706b"
+        };
+        firebase.initializeApp(firebaseConfig);
 
-  <p id="error" style="color:red;"></p>
+        // DOM Elements
+        const authForm = document.getElementById('authForm');
+        const formTitle = document.getElementById('formTitle');
+        const nameGroup = document.getElementById('nameGroup');
+        const fullNameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const authBtn = document.getElementById('authBtn');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
 
-  <script>
-    function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+        // Track current mode
+        let isLoginMode = true;
 
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      console.log("Login Success", userCredential);
-      return userCredential.user.getIdToken();
-    })
-    .then(idToken => {
-      console.log("Got ID Token:", idToken);  // ✅ এইটা দেখো
-      return fetch("/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken: idToken })
-      });
-    })
-    .then(response => {
-      console.log("Login API response:", response.status);
-      if (!response.ok) {
-        return response.json().then(data => {
-          throw new Error(data.error);
+        // Toggle between login and register
+        toggleAuth.addEventListener('click', function(e) {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                // Switch to Login Mode
+                formTitle.textContent = 'Career Assistant';
+                nameGroup.style.display = 'none';
+                confirmPasswordGroup.style.display = 'none';
+                authBtn.textContent = 'Login to Dashboard';
+                toggleAuth.textContent = 'Create Account';
+                toggleAuth.parentElement.innerHTML = `Don't have an account? <a href="#" id="toggleAuth">Create Account</a>`;
+                fullNameInput.required = false;
+                confirmPasswordInput.required = false;
+            } else {
+                // Switch to Register Mode
+                formTitle.textContent = 'Create Account';
+                nameGroup.style.display = 'block';
+                confirmPasswordGroup.style.display = 'block';
+                authBtn.textContent = 'Create Account';
+                toggleAuth.textContent = 'Login Here';
+                toggleAuth.parentElement.innerHTML = `Already have an account? <a href="#" id="toggleAuth">Login Here</a>`;
+                fullNameInput.required = true;
+                confirmPasswordInput.required = true;
+            }
+            
+            // Re-attach event listener
+            document.getElementById('toggleAuth').addEventListener('click', arguments.callee);
+            hideError();
         });
-      }
-      window.location.href = "/dashboard";
-    })
-    .catch(error => {
-      document.getElementById("error").innerText = error.message;
-      console.error("Login Error:", error);  // ✅ লগ দেখো
-    });
-}
-  </script>
+
+        // Show Error Function
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            loading.style.display = 'none';
+            authBtn.disabled = false;
+            authBtn.textContent = isLoginMode ? 'Login to Dashboard' : 'Create Account';
+        }
+
+        // Hide Error Function
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Login Function
+        async function handleLogin(email, password) {
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            console.log("Login Success", userCredential);
+            
+            const idToken = await userCredential.user.getIdToken();
+            console.log("Got ID Token:", idToken);
+            
+            const response = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken: idToken })
+            });
+
+            console.log("Login API response:", response.status);
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Login failed');
+            }
+
+            window.location.href = "/dashboard";
+        }
+
+        // Register Function
+        async function handleRegister(email, password, fullName) {
+            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+            console.log("Registration Success", userCredential);
+            
+            // Update user profile with name
+            await userCredential.user.updateProfile({
+                displayName: fullName
+            });
+            
+            // Auto login after registration
+            const idToken = await userCredential.user.getIdToken();
+            
+            const response = await fetch("/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ idToken: idToken })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Registration failed');
+            }
+
+            window.location.href = "/dashboard";
+        }
+
+        // Auth Form Submit Handler
+        authForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            const fullName = fullNameInput.value.trim();
+            const confirmPassword = confirmPasswordInput.value.trim();
+
+            if (!email || !password) {
+                showError('Please fill in all required fields');
+                return;
+            }
+
+            if (!isLoginMode) {
+                if (!fullName) {
+                    showError('Please enter your full name');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return;
+                }
+                if (password.length < 6) {
+                    showError('Password must be at least 6 characters');
+                    return;
+                }
+            }
+
+            // Show loading state
+            hideError();
+            authBtn.disabled = true;
+            authBtn.textContent = isLoginMode ? 'Logging in...' : 'Creating Account...';
+            loading.style.display = 'block';
+
+            try {
+                if (isLoginMode) {
+                    await handleLogin(email, password);
+                } else {
+                    await handleRegister(email, password, fullName);
+                }
+                
+            } catch (error) {
+                console.error("Auth Error:", error);
+                
+                // Handle specific Firebase errors
+                let errorMsg = error.message;
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'No account found with this email';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMsg = 'Incorrect password';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Invalid email format';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = 'Too many failed attempts. Please try again later';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    errorMsg = 'Email already registered. Please login instead';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMsg = 'Password is too weak. Please use a stronger password';
+                }
+                
+                showError(errorMsg);
+            }
+        });
+
+        // Input field focus effects
+        emailInput.addEventListener('focus', hideError);
+        passwordInput.addEventListener('focus', hideError);
+        fullNameInput.addEventListener('focus', hideError);
+        confirmPasswordInput.addEventListener('focus', hideError);
+    </script>
 </body>
 </html>
