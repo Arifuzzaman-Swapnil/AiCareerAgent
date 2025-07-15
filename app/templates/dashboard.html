@@ -1,93 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Career Assistant Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Assistant Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .hero-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0.5;
+        }
+
+        .hero-content > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Image Slider */
+        .slider-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="50" cy="60" r="1" fill="rgba(255,255,255,0.06)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.04)"/><circle cx="10" cy="90" r="1.8" fill="rgba(255,255,255,0.05)"/></svg>');
+            animation: float 10s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .slide:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .slide:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .slide:nth-child(4) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        /* Tools Section */
+        .tools-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 50px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .tool-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-description {
+            color: #666;
+            font-size: 1.1em;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tool-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 15px;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero-title {
+                font-size: 2.2em;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1em;
+            }
+
+            .hero-content {
+                padding: 40px 20px;
+            }
+
+            .slide {
+                height: 200px;
+                font-size: 1.2em;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .tool-card {
+                padding: 30px;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8em;
+            }
+
+            .tool-icon {
+                font-size: 3em;
+            }
+
+            .tool-title {
+                font-size: 1.3em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Career Assistant Dashboard</h1>
-    <nav>
-      <a href="/tools/career">Career Counsellor</a> |
-      <a href="/tools/interview_upload">Upload Interview Resume</a> |
-      <a href="/tools/interview">Practice Interview</a> |
-      <a href="/tools/feedback">Resume Feedback</a> |
-      <a href="/auth/logout">Logout</a>
-    </nav>
-  </header>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="/dashboard" class="logo">
+                <span class="logo-icon">💼</span>
+                Career Assistant
+            </a>
+            
+            <nav class="nav-links" id="navLinks">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/tools/career">Career Guide</a>
+                <a href="/tools/resume">Resume</a>
+                <a href="/tools/interview">Interview</a>
+                <a href="/tools/feedback">Feedback</a>
+            </nav>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                ☰
+            </button>
+            
+            <a href="/auth/logout" class="logout-btn">
+                <span>🚪</span>
+                Logout
+            </a>
+        </div>
+    </header>
 
-  <main>
-    <section>
-      <h2>📊 Your Scores</h2>
-      <canvas id="scoreChart" width="600" height="300"></canvas>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">আপনার ক্যারিয়ার সহায়ক</h1>
+            <p class="hero-subtitle">
+                AI-powered career guidance, resume optimization, and interview preparation - 
+                সব কিছু এক জায়গায়। আপনার স্বপ্নের চাকরি পেতে আমরা আছি আপনার পাশে।
+            </p>
+            
+            <div class="slider-container">
+                <div class="slider" id="slider">
+                    <div class="slide">
+                        <div>
+                            <h3>🎯 Career Guidance</h3>
+                            <p>আপনার জন্য সঠিক ক্যারিয়ার পথ খুঁজে নিন</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <div>
+                            <h3>📄 Resume Optimization</h3>
+                            <p>পেশাদার রিজিউমি তৈরি করুন</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <div>
+                            <h3>🎤 Interview Practice</h3>
+                            <p>ইন্টারভিউয়ে সফল হওয়ার জন্য প্রস্তুতি নিন</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div>
+                        <h3>📊 Performance Analysis</h3>
+                        <p>আপনার দক্ষতা বিশ্লেষণ করুন</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slider-dots">
+                <span class="dot active" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+                <span class="dot" onclick="currentSlide(4)"></span>
+            </div>
+        </div>
     </section>
 
-    <section>
-      <h2>📝 Resume Feedback</h2>
-      <p>{{ resume_feedback }}</p>
-      {% if feedback_score %}
-        <p><strong>Score:</strong> {{ feedback_score }}/100</p>
-      {% endif %}
+    <!-- Tools Section -->
+    <section class="tools-section">
+        <h2 class="section-title">আমাদের সেবাসমূহ</h2>
+        
+        <div class="tools-grid">
+            <a href="/tools/career" class="tool-card">
+                <div class="tool-badge">AI Powered</div>
+                <div class="tool-icon">🎯</div>
+                <h3 class="tool-title">Career Counsellor</h3>
+                <p class="tool-description">
+                    আপনার দক্ষতা ও আগ্রহের উপর ভিত্তি করে সঠিক ক্যারিয়ার পরামর্শ পান। 
+                    AI সহায়তায় আপনার জন্য উপযুক্ত পেশা খুঁজে নিন।
+                </p>
+            </a>
+
+            <a href="/tools/summarize" class="tool-card">
+                <div class="tool-badge">Smart</div>
+                <div class="tool-icon">📝</div>
+                <h3 class="tool-title">Resume Summarizer</h3>
+                <p class="tool-description">
+                    আপনার রিজিউমি থেকে গুরুত্বপূর্ণ তথ্য সংক্ষিপ্ত করুন। 
+                    একটি আকর্ষণীয় প্রোফাইল সামারি তৈরি করুন।
+                </p>
+            </a>
+
+            <a href="/tools/feedback" class="tool-card">
+                <div class="tool-badge">Expert</div>
+                <div class="tool-icon">📊</div>
+                <h3 class="tool-title">Resume Feedback</h3>
+                <p class="tool-description">
+                    আপনার রিজিউমি বিশ্লেষণ করুন এবং উন্নতির জন্য বিশেষজ্ঞ পরামর্শ পান। 
+                    স্কোর ও সাজেশন সহ।
+                </p>
+            </a>
+
+            <a href="/tools/interview_upload" class="tool-card">
+                <div class="tool-badge">Personalized</div>
+                <div class="tool-icon">📋</div>
+                <h3 class="tool-title">Interview Prep</h3>
+                <p class="tool-description">
+                    আপনার রিজিউমি আপলোড করুন এবং কাস্টমাইজড ইন্টারভিউ প্রশ্ন তৈরি করুন। 
+                    প্রস্তুতি নিন পেশাদারভাবে।
+                </p>
+            </a>
+
+            <a href="/tools/interview" class="tool-card">
+                <div class="tool-badge">Practice</div>
+                <div class="tool-icon">🎤</div>
+                <h3 class="tool-title">Mock Interview</h3>
+                <p class="tool-description">
+                    রিয়েল-টাইম ইন্টারভিউ অনুশীলন করুন। MCQ এবং ভার্বাল প্রশ্নের মাধ্যমে 
+                    আত্মবিশ্বাস বৃদ্ধি করুন।
+                </p>
+            </a>
+
+            <a href="/tools/resume" class="tool-card">
+                <div class="tool-badge">Professional</div>
+                <div class="tool-icon">📄</div>
+                <h3 class="tool-title">Resume Builder</h3>
+                <p class="tool-description">
+                    পেশাদার রিজিউমি তৈরি করুন। আধুনিক টেমপ্লেট এবং 
+                    AI সহায়তায় আপনার যোগ্যতা তুলে ধরুন।
+                </p>
+            </a>
+        </div>
     </section>
 
-    <section>
-      <h2>🎯 Interview MCQ Score</h2>
-      <p>Score: {{ mcq_score }} / {{ mcq_total }}</p>
-    </section>
+    <script>
+        // Slider functionality
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const slider = document.getElementById('slider');
 
-    <section>
-      <h2>💼 Career Suggestions</h2>
-      <p>{{ career_suggestions }}</p>
-    </section>
-
-    <section>
-      <h2>📄 Resume Summary</h2>
-      <p>{{ resume_summary }}</p>
-    </section>
-  </main>
-
-  <script>
-    const ctx = document.getElementById('scoreChart').getContext('2d');
-
-    const data = {
-      labels: {{ labels | tojson }},
-      datasets: [{
-        label: 'Your Scores',
-        data: [
-          {{ feedback_score }},
-          {{ mcq_score }},
-          {{ career_match | default(0) }}
-        ],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(75, 192, 192, 0.7)'
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)'
-        ],
-        borderWidth: 1
-      }]
-    };
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: data,
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100
-          }
+        function showSlide(index) {
+            currentSlideIndex = index;
+            slider.style.transform = `translateX(-${index * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
         }
-      }
-    });
-  </script>
+
+        function currentSlide(index) {
+            showSlide(index - 1);
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            showSlide(currentSlideIndex);
+        }
+
+        // Auto-slide
+        setInterval(nextSlide, 4000);
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-container')) {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.textContent = '☰';
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all tool cards
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
 </body>
 </html>
