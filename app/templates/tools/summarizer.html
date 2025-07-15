@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume Summarizer</title>
+</head>
+<body>
+  <h2>📄 Resume Summarizer</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    <label>PDF ফাইল আপলোড করুন:</label><br>
+    <input type="file" name="resume_pdf" accept=".pdf" required><br><br>
+    <button type="submit">Summarize</button>
+  </form>
+
+  {% if summary %}
+    <hr>
+    <h3>📌 সামারি:</h3>
+    <p>{{ summary }}</p>
+  {% endif %}
+
+  <br><a href="/dashboard">← ড্যাশবোর্ডে যান</a>
+</body>
+</html>

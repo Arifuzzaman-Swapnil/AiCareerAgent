@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume Feedback Generator</title>
+</head>
+<body>
+  <h2>📝 Resume Feedback Generator</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    <label>PDF Resume আপলোড করুন:</label><br>
+    <input type="file" name="resume_pdf" accept=".pdf" required><br><br>
+    <button type="submit">Generate Feedback</button>
+  </form>
+
+  {% if feedback %}
+    <hr>
+    <h3>💡 Feedback:</h3>
+    <p>{{ feedback }}</p>
+    <h4>Score: {{ score }}/100</h4>
+  {% endif %}
+
+  <br><a href="/dashboard">← Dashboard</a>
+</body>
+</html>

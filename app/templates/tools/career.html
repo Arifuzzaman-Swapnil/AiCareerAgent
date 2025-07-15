@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Career Counsellor</title>
+  <style>
+    textarea { width: 100%; height: 200px; }
+    .output { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <h2>বাংলা ক্যারিয়ার কাউন্সেলর</h2>
+  <form method="POST">
+    <label>আপনার রেজুমে বা স্কিল টেক্সট দিন:</label><br>
+    <textarea name="resume" required></textarea><br><br>
+    <button type="submit">সাজেশন নিন</button>
+  </form>
+
+  {% if suggestion %}
+    <div class="output">
+      <h3>🎯 সাজেস্টেড ক্যারিয়ার:</h3>
+      <pre>{{ suggestion }}</pre>
+    </div>
+  {% endif %}
+  <br><a href="/dashboard">← ড্যাশবোর্ডে ফিরে যান</a>
+</body>
+</html>

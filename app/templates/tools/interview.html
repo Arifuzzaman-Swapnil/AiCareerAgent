@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interview Practice</title>
+</head>
+<body>
+  <h2>🧠 Interview Practice</h2>
+
+  <h3>MCQ Questions</h3>
+  {% for q in mcqs %}
+    <p><strong>{{ loop.index }}. {{ q.question }}</strong></p>
+    {% for opt in q.options %}
+      <label><input type="radio" name="q{{ loop.index }}" value="{{ opt }}"> {{ opt }}</label><br>
+    {% endfor %}
+    <br>
+  {% endfor %}
+
+  <h3>Logical Questions</h3>
+  {% for q in logic %}
+    <p><strong>{{ loop.index }}. {{ q }}</strong></p>
+    <textarea rows="3" cols="80"></textarea><br><br>
+  {% endfor %}
+
+  <a href="/dashboard">← Dashboard</a>
+</body>
+</html>
