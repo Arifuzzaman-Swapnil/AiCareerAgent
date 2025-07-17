@@ -1,26 +1,760 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Interview Practice</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume-Based Interview Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0 20px 20px 0;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .score-display {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+        .score-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e1e1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .timer {
+            background: rgba(255, 206, 86, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #ffce56;
+        }
+
+        .nav-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .interview-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .main-title {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px dashed #667eea;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .question-container {
+            background: rgba(102, 126, 234, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #e1e1e1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        .option.selected {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #333;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e1e1;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+            border: 2px solid #667eea;
+            display: none;
+        }
+
+        .final-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e1e1e1;
+        }
+
+        .score-item-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 2px solid #28a745;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+
+        .results-details {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 2px solid #e1e1e1;
+        }
+
+        .result-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item.correct {
+            background: rgba(40, 167, 69, 0.1);
+            border-left-color: #28a745;
+        }
+
+        .result-item.incorrect {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: #dc3545;
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-radius: 0 0 20px 20px;
+                max-height: 200px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .interview-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>🧠 Interview Practice</h2>
+    
+    <div class="sidebar">
+        <h3>📊 Interview Progress</h3>
+        
+        <div class="score-display">
+            <div class="score-number" id="currentScore">0</div>
+            <div class="score-text">Questions Answered</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
 
-  <h3>MCQ Questions</h3>
-  {% for q in mcqs %}
-    <p><strong>{{ loop.index }}. {{ q.question }}</strong></p>
-    {% for opt in q.options %}
-      <label><input type="radio" name="q{{ loop.index }}" value="{{ opt }}"> {{ opt }}</label><br>
-    {% endfor %}
-    <br>
-  {% endfor %}
+        <div class="timer">
+            <div class="timer-text" id="timerDisplay">⏱️ 00:00:00</div>
+        </div>
 
-  <h3>Logical Questions</h3>
-  {% for q in logic %}
-    <p><strong>{{ loop.index }}. {{ q }}</strong></p>
-    <textarea rows="3" cols="80"></textarea><br><br>
-  {% endfor %}
+        <div class="navigation-sidebar">
+            <button class="nav-btn" onclick="scrollToSection('upload-section')">📄 Upload Resume</button>
+            <button class="nav-btn" onclick="scrollToSection('mcq-section')">📝 MCQ Questions</button>
+            <button class="nav-btn" onclick="window.location.href='{{ url_for('dashboard.dashboard') }}'">🏠 Dashboard</button>
+        </div>
+    </div>
 
-  <a href="/dashboard">← Dashboard</a>
+    <div class="main-content">
+        <div class="interview-container">
+            <div class="header">
+                <div class="logo">🎯</div>
+                <h1 class="main-title">Resume-Based Interview Practice</h1>
+                <p class="subtitle">Upload your resume and get 30 technical MCQ questions</p>
+            </div>
+
+            <div id="message-container"></div>
+
+            <div id="upload-section" class="upload-section">
+                <h3>📄 Upload Your Resume</h3>
+                <p>Upload your PDF resume to generate 30 personalized technical MCQ questions</p>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="resumeFile" class="upload-input" accept=".pdf" required>
+                    <button type="button" class="upload-btn" onclick="document.getElementById('resumeFile').click()">
+                        📎 Choose PDF File
+                    </button>
+                    <button type="submit" class="upload-btn" id="generateBtn" disabled>
+                        🚀 Generate 30 MCQ Questions
+                    </button>
+                </form>
+            </div>
+
+            <div id="mcq-section" class="hidden">
+                <h2 class="section-title">
+                    <span>📝</span>
+                    Technical MCQ Questions (<span id="mcqCount">0</span> টি প্রশ্ন)
+                </h2>
+                <div id="mcqContainer"></div>
+            </div>
+
+            <div class="submit-section">
+                <button type="button" class="submit-btn hidden" id="submitBtn" onclick="submitInterview()">
+                    🚀 Submit Interview
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                Generating questions from your resume...
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <div class="final-score" id="finalScore">0/0</div>
+                    <h3>🎉 Interview Complete!</h3>
+                </div>
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <div class="score-item-number" id="mcqScore">0</div>
+                        <div class="score-item-label">Correct Answers</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-item-number" id="totalQuestions">0</div>
+                        <div class="score-item-label">Total Questions</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-item-number" id="percentageScore">0%</div>
+                        <div class="score-item-label">Percentage</div>
+                    </div>
+                </div>
+                <div class="results-details" id="resultsDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let startTime = new Date();
+        let timerInterval;
+        let generatedQuestions = [];
+        let totalQuestions = 0;
+        let answeredQuestions = 0;
+        let resumeUploaded = false;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const elapsed = Math.floor((now - startTime) / 1000);
+                const hours = Math.floor(elapsed / 3600);
+                const minutes = Math.floor((elapsed % 3600) / 60);
+                const seconds = elapsed % 60;
+                
+                document.getElementById('timerDisplay').textContent = 
+                    `⏱️ ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showMessage(message, type = 'success') {
+            const messageContainer = document.getElementById('message-container');
+            const alertClass = type === 'error' ? 'alert-error' : 'alert-success';
+            messageContainer.innerHTML = `
+                <div class="alert ${alertClass}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        document.getElementById('resumeFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').textContent = `🚀 Generate Questions from ${file.name}`;
+                resumeUploaded = true;
+            } else {
+                showMessage('Please upload a PDF file', 'error');
+                resumeUploaded = false;
+                document.getElementById('generateBtn').disabled = true;
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!resumeUploaded) {
+                showMessage('Please upload a PDF file first', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('resumeFile');
+            formData.append('resume_pdf', fileInput.files[0]);
+
+            const loading = document.getElementById('loading');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            loading.style.display = 'block';
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            try {
+                const response = await fetch('{{ url_for("ai.generate_interview_question") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    generatedQuestions = data.questions.mcq;
+                    showMessage('✅ ৩০টি প্রশ্ন তৈরি হয়েছে!', 'success');
+                    renderQuestions();
+                    
+                    // Show questions sections
+                    document.getElementById('mcq-section').classList.remove('hidden');
+                    document.getElementById('submitBtn').classList.remove('hidden');
+                    
+                    totalQuestions = generatedQuestions.length;
+                    document.getElementById('mcqCount').textContent = generatedQuestions.length;
+                    updateProgress();
+                } else {
+                    showMessage(data.error || 'Error generating questions', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error occurred', 'error');
+            } finally {
+                loading.style.display = 'none';
+                generateBtn.textContent = '✅ Questions Generated!';
+            }
+        });
+
+        function renderQuestions() {
+            const mcqContainer = document.getElementById('mcqContainer');
+            mcqContainer.innerHTML = '';
+            
+            generatedQuestions.forEach((q, index) => {
+                const questionHTML = `
+                    <div class="question-container">
+                        <div class="question-number">Question ${index + 1}</div>
+                        <div class="question-text">${q.question}</div>
+                        <div class="options-container">
+                            ${q.options.map((option, optIndex) => `
+                                <label class="option" onclick="selectOption(${index}, ${optIndex}, this)">
+                                    <input type="radio" name="q${index}" value="${optIndex}" style="pointer-events: none;">
+                                    <span>${option}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                mcqContainer.innerHTML += questionHTML;
+            });
+        }
+
+        function selectOption(questionIndex, optionIndex, element) {
+            // Remove selected class from all options of this question
+            const allOptions = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+            allOptions.forEach(option => {
+                option.parentElement.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            element.querySelector('input[type="radio"]').checked = true;
+            
+            updateAnsweredCount();
+        }
+
+        function updateAnsweredCount() {
+            let answered = 0;
+            for (let i = 0; i < generatedQuestions.length; i++) {
+                const checkedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (checkedOption) {
+                    answered++;
+                }
+            }
+            answeredQuestions = answered;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
+            document.getElementById('currentScore').textContent = answeredQuestions;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function submitInterview() {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            loading.style.display = 'block';
+
+            // Collect MCQ answers
+            const mcqAnswers = [];
+            for (let i = 0; i < generatedQuestions.length; i++) {
+                const checkedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                mcqAnswers.push(checkedOption ? parseInt(checkedOption.value) : -1);
+            }
+
+            try {
+                const response = await fetch('{{ url_for("ai.submit_interview") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mcq_answers: mcqAnswers,
+                        logic_answers: []
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    clearInterval(timerInterval);
+                    
+                    document.getElementById('finalScore').textContent = `${data.score}/${data.total}`;
+                    document.getElementById('mcqScore').textContent = data.score;
+                    document.getElementById('totalQuestions').textContent = data.total;
+                    document.getElementById('percentageScore').textContent = Math.round(data.percentage) + '%';
+                    
+                    // Show detailed results
+                    showDetailedResults(data.details);
+                    
+                    document.getElementById('resultsSection').style.display = 'block';
+                    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                    
+                    showMessage('✅ Interview submitted successfully!', 'success');
+                } else {
+                    showMessage(data.error || 'Error submitting interview', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error occurred', 'error');
+            } finally {
+                loading.style.display = 'none';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function showDetailedResults(details) {
+            const resultsDetails = document.getElementById('resultsDetails');
+            let detailsHTML = '<h4>বিস্তারিত ফলাফল:</h4>';
+            
+            details.forEach((detail, index) => {
+                const statusClass = detail.is_correct ? 'correct' : 'incorrect';
+                const statusIcon = detail.is_correct ? '✅' : '❌';
+                
+                detailsHTML += `
+                    <div class="result-item ${statusClass}">
+                        <strong>${statusIcon} প্রশ্ন ${index + 1}:</strong> ${detail.question}<br>
+                        <strong>আপনার উত্তর:</strong> ${detail.user_answer >= 0 ? generatedQuestions[index].options[detail.user_answer] : 'কোনো উত্তর দেওয়া হয়নি'}<br>
+                        <strong>সঠিক উত্তর:</strong> ${generatedQuestions[index].options[detail.correct_answer]}<br>
+                        ${detail.explanation ? `<strong>ব্যাখ্যা:</strong> ${detail.explanation}` : ''}
+                    </div>
+                `;
+            });
+            
+            resultsDetails.innerHTML = detailsHTML;
+        }
+
+        // Load existing questions on page load
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch('{{ url_for("ai.get_existing_questions") }}');
+                const data = await response.json();
+                
+                if (data.questions && data.questions.mcq.length > 0) {
+                    generatedQuestions = data.questions.mcq;
+                    renderQuestions();
+                    
+                    document.getElementById('mcq-section').classList.remove('hidden');
+                    document.getElementById('submitBtn').classList.remove('hidden');
+                    
+                    totalQuestions = generatedQuestions.length;
+                    document.getElementById('mcqCount').textContent = generatedQuestions.length;
+                    updateProgress();
+                }
+            } catch (error) {
+                console.log('No existing questions found');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer();
+        });
+    </script>
 </body>
 </html>

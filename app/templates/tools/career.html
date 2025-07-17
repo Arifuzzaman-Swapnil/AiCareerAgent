@@ -16,28 +16,187 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #667eea;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+        }
+
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .history-toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #333;
+            cursor: pointer;
         }
 
         /* Sidebar Styles */
         .sidebar {
-            width: 300px;
+            position: fixed;
+            top: 80px;
+            right: -350px;
+            width: 350px;
+            height: calc(100vh - 80px);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 0 20px 20px 0;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 999;
             overflow-y: auto;
-            max-height: 100vh;
         }
 
-        .sidebar h3 {
-            color: #333;
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            font-size: 1.3em;
-            text-align: center;
             padding-bottom: 15px;
             border-bottom: 2px solid #667eea;
+        }
+
+        .sidebar-title {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #667eea;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(102, 126, 234, 0.1);
         }
 
         .history-item {
@@ -84,10 +243,30 @@
             padding: 20px;
         }
 
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         /* Main Content */
         .main-content {
-            flex: 1;
-            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -101,14 +280,26 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 800px;
+            animation: slideIn 0.6s ease-out;
         }
 
-        .header {
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-section {
             text-align: center;
             margin-bottom: 40px;
         }
 
-        .logo {
+        .logo-main {
             font-size: 3em;
             margin-bottom: 10px;
         }
@@ -252,87 +443,67 @@
             border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e1e1e1;
-        }
-
-        .nav-link {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background: rgba(102, 126, 234, 0.1);
-            transform: translateX(-5px);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            font-size: 0.95em;
-        }
-
-        .nav-links a:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
         /* Responsive Design */
-        @media (max-width: 1024px) {
-            body {
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 15px;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
                 flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-radius: 0 0 20px 20px;
-                max-height: 200px;
-            }
-            
-            .main-content {
                 padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             }
-            
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-actions {
+                gap: 10px;
+            }
+
+            .history-toggle-btn {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+
+            .logout-btn {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+
+            .sidebar {
+                right: -100%;
+                width: 100%;
+                top: 80px;
+            }
+
+            .main-content {
+                padding: 20px 10px;
+            }
+
             .career-container {
                 padding: 30px 20px;
             }
-        }
 
-        @media (max-width: 768px) {
             .main-title {
                 font-size: 1.8em;
             }
-            
-            .logo {
+
+            .logo-main {
                 font-size: 2.5em;
-            }
-            
-            .navigation {
-                flex-direction: column;
-                gap: 15px;
-                align-items: stretch;
-            }
-            
-            .nav-links {
-                justify-content: center;
-                flex-wrap: wrap;
             }
         }
 
@@ -357,9 +528,49 @@
     </style>
 </head>
 <body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="/dashboard" class="logo">
+                <span class="logo-icon">💼</span>
+                Career Assistant
+            </a>
+            
+            <nav class="nav-links" id="navLinks">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/tools/career" class="active">Career Guide</a>
+                <a href="/tools/resume">Resume</a>
+                <a href="/tools/interview">Interview</a>
+                <a href="/tools/feedback">Feedback</a>
+            </nav>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                ☰
+            </button>
+            
+            <div class="nav-actions">
+                <button class="history-toggle-btn" id="historyToggle">
+                    <span>📋</span>
+                    History
+                </button>
+                
+                <a href="/auth/logout" class="logout-btn">
+                    <span>🚪</span>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar for History -->
-    <div class="sidebar">
-        <h3>📋 History</h3>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">📋 History</h3>
+            <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
         <div id="historyContainer">
             <!-- History items will be populated here -->
             <div class="no-history">
@@ -369,12 +580,11 @@
         </div>
     </div>
 
-    
     <!-- Main Content -->
     <div class="main-content">
         <div class="career-container">
-            <div class="header">
-                <div class="logo">🎯</div>
+            <div class="header-section">
+                <div class="logo-main">🎯</div>
                 <h1 class="main-title">বাংলা ক্যারিয়ার কাউন্সেলর</h1>
                 <p class="subtitle">আপনার স্বপ্নের ক্যারিয়ার খুঁজে পান</p>
             </div>
@@ -410,12 +620,56 @@
                 <div class="output-content">{{ suggestion }}</div>
             </div>
             {% endif %}
-
-            
         </div>
     </div>
 
     <script>
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileMenuBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Sidebar functionality
+        const historyToggle = document.getElementById('historyToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function openSidebar() {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        historyToggle.addEventListener('click', openSidebar);
+        sidebarClose.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                closeSidebar();
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-container')) {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.textContent = '☰';
+            }
+        });
+
         // Load history on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadHistory();
@@ -437,7 +691,6 @@
             const historyContainer = document.getElementById('historyContainer');
             
             // Simulate loading history data
-            // In real implementation, this would fetch from Firebase
             const sampleHistory = [
                 {
                     id: 1,
@@ -511,6 +764,9 @@
             `;
             
             document.querySelector('.form-container').insertAdjacentElement('afterend', outputDiv);
+            
+            // Close sidebar after selection
+            closeSidebar();
         }
 
         function formatDate(dateString) {
