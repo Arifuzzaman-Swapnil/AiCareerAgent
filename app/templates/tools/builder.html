@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder - Career Assistant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff4757;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff3742;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .page-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .page-description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .success-message {
+            background: #2ed573;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            display: flex;
+            animation: slideIn 0.5s ease;
+        }
+
+        .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .section-title span {
+            font-size: 1.8rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .dynamic-entry {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border: 2px solid #e2e8f0;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .entry-number {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .remove-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff3742;
+            transform: translateY(-1px);
+        }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .add-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .generate-section {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .generate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #2ed573 0%, #17a2b8 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(46, 213, 115, 0.6);
+        }
+
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="/dashboard" class="logo">
+                <span class="logo-icon">💼</span>
+                Career Assistant
+            </a>
+            
+            <nav class="nav-links" id="navLinks">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/tools/career">Career Guide</a>
+                <a href="/tools/resume">Resume</a>
+                <a href="/tools/interview">Interview</a>
+                <a href="/tools/feedback">Feedback</a>
+                <a href="/tools/builder" class="active">Builder</a>
+            </nav>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                ☰
+            </button>
+            
+            <a href="/auth/logout" class="logout-btn">
+                <span>🚪</span>
+                Logout
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-icon">📄</div>
+            <h1 class="page-title">Resume Builder</h1>
+            <p class="page-description">
+                Create your professional resume with beautiful design and download in PDF format.
+            </p>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            <span>✅</span>
+            <span>Resume generated successfully!</span>
+        </div>
+
+        <!-- Resume Builder Form -->
+        <form id="resumeForm">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>👤</span>
+                    Personal Information
+                </h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fullName">
+                            <span>📝</span>
+                            Full Name
+                        </label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">
+                            <span>📞</span>
+                            Phone Number
+                        </label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">
+                            <span>📧</span>
+                            Email
+                        </label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">
+                            <span>🏠</span>
+                            Address
+                        </label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>🎓</span>
+                    Education
+                </h2>
+                
+                <div id="educationEntries">
+                    <!-- Education entries will be added here -->
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addEducation()">
+                    <span>➕</span>
+                    Add Education
+                </button>
+            </div>
+
+            <!-- Professional Experience Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>💼</span>
+                    Professional Experience
+                </h2>
+                
+                <div id="experienceEntries">
+                    <!-- Experience entries will be added here -->
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addExperience()">
+                    <span>➕</span>
+                    Add More Experience
+                </button>
+            </div>
+
+            <!-- Projects Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>🚀</span>
+                    Projects
+                </h2>
+                
+                <div id="projectEntries">
+                    <!-- Project entries will be added here -->
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addProject()">
+                    <span>➕</span>
+                    Add More Projects
+                </button>
+            </div>
+
+            <!-- Certificates Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>🏆</span>
+                    Certificates
+                </h2>
+                
+                <div id="certificateEntries">
+                    <!-- Certificate entries will be added here -->
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addCertificate()">
+                    <span>➕</span>
+                    Add More Certificates
+                </button>
+            </div>
+
+            <!-- References Section -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    <span>👥</span>
+                    References
+                </h2>
+                
+                <div id="referenceEntries">
+                    <!-- Reference entries will be added here -->
+                </div>
+                
+                <button type="button" class="add-btn" onclick="addReference()">
+                    <span>➕</span>
+                    Add More References
+                </button>
+            </div>
+        </form>
+
+        <!-- Generate Section -->
+        <div class="generate-section">
+            <button type="button" class="generate-btn" id="generateBtn" onclick="generateResume()">
+                <span>📄</span>
+                Generate Resume
+            </button>
+        </div>
+
+        <!-- Loading Animation -->
+        <div class="loading" id="loadingSection">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Generating your resume...</div>
+        </div>
+
+        <!-- Back Button -->
+        <a href="/dashboard" class="back-button">
+            <span>←</span>
+            Back to Dashboard
+        </a>
+    </main>
+
+    <script>
+        // Counter variables for dynamic entries
+        let educationCounter = 0;
+        let experienceCounter = 0;
+        let projectCounter = 0;
+        let certificateCounter = 0;
+        let referenceCounter = 0;
+
+        // Add initial entries when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            addEducation();
+            addExperience();
+            addProject();
+            addCertificate();
+            addReference();
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        });
+
+        // Education Functions
+        function addEducation() {
+            educationCounter++;
+            const container = document.getElementById('educationEntries');
+            const entry = document.createElement('div');
+            entry.className = 'dynamic-entry';
+            entry.id = `education-${educationCounter}`;
+            
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-number">Education #${educationCounter}</span>
+                    ${educationCounter > 1 ? `<button type="button" class="remove-btn" onclick="removeEducation(${educationCounter})">Remove</button>` : ''}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>🏫</span>
+                            Institute Name
+                        </label>
+                        <input type="text" name="education[${educationCounter}][institute]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>📚</span>
+                            Department
+                        </label>
+                        <input type="text" name="education[${educationCounter}][department]" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>📊</span>
+                            CGPA
+                        </label>
+                        <input type="text" name="education[${educationCounter}][cgpa]" placeholder="e.g., 3.75/4.00">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>📅</span>
+                            Start Date
+                        </label>
+                        <input type="date" name="education[${educationCounter}][startDate]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>📅</span>
+                            End Date
+                        </label>
+                        <input type="date" name="education[${educationCounter}][endDate]" required>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(entry);
+        }
+
+        function removeEducation(id) {
+            const entry = document.getElementById(`education-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        // Experience Functions
+        function addExperience() {
+            experienceCounter++;
+            const container = document.getElementById('experienceEntries');
+            const entry = document.createElement('div');
+            entry.className = 'dynamic-entry';
+            entry.id = `experience-${experienceCounter}`;
+            
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-number">Experience #${experienceCounter}</span>
+                    ${experienceCounter > 1 ? `<button type="button" class="remove-btn" onclick="removeExperience(${experienceCounter})">Remove</button>` : ''}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>🏢</span>
+                            Company Name
+                        </label>
+                        <input type="text" name="experience[${experienceCounter}][company]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>💼</span>
+                            Position
+                        </label>
+                        <input type="text" name="experience[${experienceCounter}][position]" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>📋</span>
+                        Responsibilities
+                    </label>
+                    <textarea name="experience[${experienceCounter}][responsibilities]" placeholder="Describe your key responsibilities and achievements..." required></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>📅</span>
+                            Start Date
+                        </label>
+                        <input type="date" name="experience[${experienceCounter}][startDate]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>📅</span>
+                            End Date
+                        </label>
+                        <input type="date" name="experience[${experienceCounter}][endDate]" id="expEndDate-${experienceCounter}" required>
+                    </div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="currentJob-${experienceCounter}" name="experience[${experienceCounter}][current]" onchange="toggleEndDate(${experienceCounter})">
+                    <label for="currentJob-${experienceCounter}">Currently working here</label>
+                </div>
+            `;
+            
+            container.appendChild(entry);
+        }
+
+        function removeExperience(id) {
+            const entry = document.getElementById(`experience-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        function toggleEndDate(id) {
+            const checkbox = document.getElementById(`currentJob-${id}`);
+            const endDateField = document.getElementById(`expEndDate-${id}`);
+            
+            if (checkbox.checked) {
+                endDateField.style.display = 'none';
+                endDateField.required = false;
+                endDateField.value = '';
+            } else {
+                endDateField.style.display = 'block';
+                endDateField.required = true;
+            }
+        }
+
+        // Project Functions
+        function addProject() {
+            projectCounter++;
+            const container = document.getElementById('projectEntries');
+            const entry = document.createElement('div');
+            entry.className = 'dynamic-entry';
+            entry.id = `project-${projectCounter}`;
+            
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-number">Project #${projectCounter}</span>
+                    ${projectCounter > 1 ? `<button type="button" class="remove-btn" onclick="removeProject(${projectCounter})">Remove</button>` : ''}
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>🚀</span>
+                        Project Name
+                    </label>
+                    <input type="text" name="project[${projectCounter}][name]" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>📋</span>
+                        Project Details
+                    </label>
+                    <textarea name="project[${projectCounter}][details]" placeholder="Describe your project, its purpose, and your contributions..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>💻</span>
+                        Technologies Used
+                    </label>
+                    <input type="text" name="project[${projectCounter}][technologies]" placeholder="e.g., React, Node.js, MongoDB, Python" required>
+                </div>
+            `;
+            
+            container.appendChild(entry);
+        }
+
+        function removeProject(id) {
+            const entry = document.getElementById(`project-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        // Certificate Functions
+        function addCertificate() {
+            certificateCounter++;
+            const container = document.getElementById('certificateEntries');
+            const entry = document.createElement('div');
+            entry.className = 'dynamic-entry';
+            entry.id = `certificate-${certificateCounter}`;
+            
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-number">Certificate #${certificateCounter}</span>
+                    ${certificateCounter > 1 ? `<button type="button" class="remove-btn" onclick="removeCertificate(${certificateCounter})">Remove</button>` : ''}
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>🏆</span>
+                        Certificate Name
+                    </label>
+                    <input type="text" name="certificate[${certificateCounter}][name]" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <span>📋</span>
+                        Certificate Details
+                    </label>
+                    <textarea name="certificate[${certificateCounter}][details]" placeholder="Describe the certificate, issuing organization, and relevant details..." required></textarea>
+                </div>
+            `;
+            
+            container.appendChild(entry);
+        }
+
+        function removeCertificate(id) {
+            const entry = document.getElementById(`certificate-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        // Reference Functions
+        function addReference() {
+            referenceCounter++;
+            const container = document.getElementById('referenceEntries');
+            const entry = document.createElement('div');
+            entry.className = 'dynamic-entry';
+            entry.id = `reference-${referenceCounter}`;
+            
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-number">Reference #${referenceCounter}</span>
+                    ${referenceCounter > 1 ? `<button type="button" class="remove-btn" onclick="removeReference(${referenceCounter})">Remove</button>` : ''}
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>👤</span>
+                            Name
+                        </label>
+                        <input type="text" name="reference[${referenceCounter}][name]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>💼</span>
+                            Designation
+                        </label>
+                        <input type="text" name="reference[${referenceCounter}][designation]" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <span>📞</span>
+                            Phone Number
+                        </label>
+                        <input type="tel" name="reference[${referenceCounter}][phone]" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <span>📧</span>
+                            Email
+                        </label>
+                        <input type="email" name="reference[${referenceCounter}][email]" required>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(entry);
+        }
+
+        function removeReference(id) {
+            const entry = document.getElementById(`reference-${id}`);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        // Generate Resume Function
+        function generateResume() {
+            const form = document.getElementById('resumeForm');
+            const formData = new FormData(form);
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSection').classList.add('show');
+            document.getElementById('generateBtn').style.display = 'none';
+
+            // Simulate processing time
+            setTimeout(() => {
+                // Create PDF using jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                let yPosition = 20;
+                const pageHeight = doc.internal.pageSize.height;
+                const margin = 20;
+
+                // Helper function to add new page if needed
+                function checkPageBreak(requiredHeight) {
+                    if (yPosition + requiredHeight > pageHeight - margin) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                }
+
+                // Personal Information
+                doc.setFontSize(20);
+                doc.setFont(undefined, 'bold');
+                doc.text(formData.get('fullName') || 'Your Name', margin, yPosition);
+                yPosition += 10;
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Phone: ${formData.get('phone') || ''}`, margin, yPosition);
+                yPosition += 6;
+                doc.text(`Email: ${formData.get('email') || '
